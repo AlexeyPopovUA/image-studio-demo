@@ -45,6 +45,52 @@ export class PicsumAPI {
     }
   }
 
+  static async getImageInfo(id: string, signal: AbortSignal): Promise<PicsumImage | null> {
+    try {
+      const response = await fetch(`${BASE_URL}/id/${id}/info`, {signal})
+
+      if (!response.ok) {
+        if (response.status === 404) {
+          return null
+        }
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+
+      return await response.json()
+    } catch (error) {
+      console.error("Failed to fetch image info:", error)
+      return null
+    }
+  }
+
+  static getImageUrl(
+    id: string,
+    width = 800,
+    height = 600,
+    options?: {
+      grayscale?: boolean
+      blur?: number
+    },
+  ): string {
+    let url = `${BASE_URL}/id/${id}/${width}/${height}`
+
+    const params = new URLSearchParams()
+
+    if (options?.grayscale) {
+      params.append("grayscale", "")
+    }
+
+    if (options?.blur && options.blur > 0) {
+      params.append("blur", options.blur.toString())
+    }
+
+    if (params.toString()) {
+      url += `?${params.toString()}`
+    }
+
+    return url
+  }
+
   static getThumbnailUrl(id: string, size = 300): string {
     return `${BASE_URL}/id/${id}/${size}/${size}`
   }

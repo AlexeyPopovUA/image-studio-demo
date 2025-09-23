@@ -1,4 +1,5 @@
 import {ImageGallery} from "@/components/gallery/image-gallery"
+import {Suspense} from "react";
 
 export default function Home() {
   return (
@@ -7,7 +8,9 @@ export default function Home() {
         <h1 className="text-3xl font-bold text-foreground mb-2">Image Editor</h1>
         <p className="text-muted-foreground">Browse and edit your images with professional tools</p>
       </header>
-      <ImageGallery/>
+      <Suspense fallback={null}>
+        <ImageGallery/>
+      </Suspense>
     </>
   )
 }
