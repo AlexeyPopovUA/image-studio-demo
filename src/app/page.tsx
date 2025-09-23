@@ -1,4 +1,4 @@
-import {ImageGallery} from "@/app/image-gallery"
+import {ImageGallery} from "@/components/gallery/image-gallery"
 
 export default function Home() {
   return (
