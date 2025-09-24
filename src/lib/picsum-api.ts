@@ -1,4 +1,4 @@
-export interface PicsumImage {
+export type PicsumImage = {
   id: string
   author: string
   width: number
@@ -7,14 +7,14 @@ export interface PicsumImage {
   download_url: string
 }
 
-export interface PaginatedResponse {
+export type PaginatedResponse = {
   images: PicsumImage[]
   currentPage: number
   hasNext: boolean
   hasPrev: boolean
 }
 
-export interface ImageSettings {
+export type ImageSettings = {
   width: number
   height: number
   grayscale: boolean

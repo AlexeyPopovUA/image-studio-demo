@@ -3,7 +3,7 @@ import Image from "next/image";
 import {getThumbnailUrl, PicsumImage} from "@/lib/picsum-api";
 import {Card, CardContent} from "@/components/ui/card";
 
-interface ImageCardProps {
+type ImageCardProps = {
   image: PicsumImage
   prevPage?: string
 }
