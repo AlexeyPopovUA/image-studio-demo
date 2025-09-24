@@ -2,6 +2,7 @@ import {useEffect, useState} from "react";
 import {getImages, PicsumImage} from "@/lib/picsum-api";
 
 const ITEMS_PER_PAGE = 9
+const INVALID_PAGE_ERROR = "Invalid page number. Page numbers must be 1 or greater."
 
 type HookState = {
   images: PicsumImage[]
@@ -14,13 +15,24 @@ type HookState = {
 export function useGalleryImages(pageNumber: number) {
   const [state, setState] = useState<HookState>({
     images: [],
-    loading: false,
+    loading: true,
     error: "",
     hasPrevious: false,
     hasNext: false
   });
 
   useEffect(() => {
+    if (!Number.isInteger(pageNumber) || pageNumber < 1) {
+      setState({
+        images: [],
+        loading: false,
+        error: INVALID_PAGE_ERROR,
+        hasPrevious: false,
+        hasNext: false
+      })
+      return
+    }
+
     const controller = new AbortController();
     const signal = controller.signal;
 
@@ -34,7 +46,7 @@ export function useGalleryImages(pageNumber: number) {
         if (err instanceof Error && err.name === "AbortError") {
           console.log("Fetch aborted");
         } else {
-          setState({loading: false, error: "Failed to load images. Please try again.", images: [], hasPrevious: false, hasNext: false})
+          setState({loading: false, error: err instanceof Error ? err?.message : JSON.stringify(err), images: [], hasPrevious: false, hasNext: false})
           console.error("Error fetching images:", err)
         }
       }
