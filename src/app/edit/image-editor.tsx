@@ -3,7 +3,7 @@
 import {useTransition} from "react";
 import {useSearchParams} from "next/navigation";
 import Image from "next/image"
-import {Download, RotateCcw} from "lucide-react"
+import {Download, ImageOff, Loader2, RotateCcw} from "lucide-react"
 import {Button} from "@/components/ui/button"
 import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card"
 import {Slider} from "@/components/ui/slider"
@@ -18,7 +18,11 @@ export function ImageEditor() {
   const id = searchParams.get('id');
 
   const [isDownloadPending, startDownloadTransition] = useTransition();
-  const [processedImageUrl, imageInfo, settings, updateSettings, resetSettings] = useEditorState(id)
+  const [processedImageUrl, imageInfo, settings, updateSettings, resetSettings, imageStatus] = useEditorState(id)
+
+  const isReady = imageStatus === "ready"
+  const isMissing = imageStatus === "missing"
+  const isLoading = imageStatus === "loading"
 
   const handleDownload = () => {
     startDownloadTransition(async () => {
@@ -34,11 +38,27 @@ export function ImageEditor() {
       <div className="flex items-center justify-between mb-8">
         <div className="flex items-center space-x-4">
           <div>
-            <h1 className="text-2xl font-bold text-foreground">Photo #{imageInfo?.id ?? "-"}</h1>
-            <p className="text-muted-foreground">by {imageInfo?.author ?? "-"}</p>
-            <p className="text-sm text-muted-foreground">
-              Original: {imageInfo?.width ?? 0} × {imageInfo?.height ?? 0}px
-            </p>
+            {isMissing ? (
+              <>
+                <h1 className="text-2xl font-bold text-foreground">Could not load the image</h1>
+                <p className="text-muted-foreground text-sm max-w-md">
+                  The requested photo may be unavailable or the link is invalid. Choose another image to continue editing.
+                </p>
+              </>
+            ) : isLoading ? (
+              <>
+                <h1 className="text-2xl font-bold text-foreground">Loading image…</h1>
+                <p className="text-muted-foreground text-sm">Fetching photo details from Picsum.</p>
+              </>
+            ) : (
+              <>
+                <h1 className="text-2xl font-bold text-foreground">Photo #{imageInfo?.id ?? "-"}</h1>
+                <p className="text-muted-foreground">by {imageInfo?.author ?? "-"}</p>
+                <p className="text-sm text-muted-foreground">
+                  Original: {imageInfo?.width ?? 0} × {imageInfo?.height ?? 0}px
+                </p>
+              </>
+            )}
           </div>
         </div>
         <div className="flex space-x-2">
@@ -47,11 +67,17 @@ export function ImageEditor() {
             size="sm"
             onClick={resetSettings}
             className="border-border hover:bg-accent bg-transparent"
+            disabled={!isReady}
           >
             <RotateCcw className="h-4 w-4 mr-2"/>
             Reset
           </Button>
-          <Button size="sm" onClick={handleDownload} className="bg-primary hover:bg-primary/90" disabled={isDownloadPending}>
+          <Button
+            size="sm"
+            onClick={handleDownload}
+            className="bg-primary hover:bg-primary/90"
+            disabled={!isReady || isDownloadPending}
+          >
             <Download className="h-4 w-4 mr-2"/>
             Download
           </Button>
@@ -82,6 +108,7 @@ export function ImageEditor() {
                       min="100"
                       max="2000"
                       className="bg-input border-border text-foreground"
+                      disabled={!isReady}
                     />
                   </div>
                   <div className="space-y-2">
@@ -96,6 +123,7 @@ export function ImageEditor() {
                       min="100"
                       max="2000"
                       className="bg-input border-border text-foreground"
+                      disabled={!isReady}
                     />
                   </div>
                 </div>
@@ -114,6 +142,7 @@ export function ImageEditor() {
                   className="cursor-pointer"
                   checked={settings.grayscale}
                   onCheckedChange={(checked) => updateSettings({grayscale: checked})}
+                  disabled={!isReady}
                 />
               </div>
 
@@ -130,6 +159,7 @@ export function ImageEditor() {
                   min={0}
                   step={1}
                   className="w-full"
+                  disabled={!isReady}
                 />
               </div>
             </CardContent>
@@ -145,7 +175,7 @@ export function ImageEditor() {
             </CardHeader>
             <CardContent>
               <div className="relative bg-muted rounded-lg p-4 min-h-[400px] flex items-center justify-center">
-                {imageInfo && processedImageUrl && (
+                {isReady && imageInfo && processedImageUrl ? (
                   <Image
                     src={processedImageUrl}
                     alt={`Photo by ${imageInfo.author}`}
@@ -155,13 +185,31 @@ export function ImageEditor() {
                     className="max-w-full max-h-[600px] object-contain rounded shadow-lg"
                     unoptimized
                   />
+                ) : (
+                  <div className="flex flex-col items-center text-center gap-3 text-muted-foreground">
+                    {isMissing ? (
+                      <ImageOff className="h-12 w-12" aria-hidden="true"/>
+                    ) : (
+                      <Loader2 className="h-10 w-10 animate-spin" aria-hidden="true"/>
+                    )}
+                    <div className="space-y-1">
+                      <p className="text-sm font-medium text-foreground">
+                        {isMissing ? "Could not load the image" : "Loading image"}
+                      </p>
+                      <p className="text-xs text-muted-foreground max-w-xs">
+                        {isMissing ? "The image may have been removed or the ID is invalid." : "Please wait while we fetch the image details."}
+                      </p>
+                    </div>
+                  </div>
                 )}
               </div>
-              <div className="mt-4 text-sm text-muted-foreground text-center">
-                Current size: {settings.width} × {settings.height}px
-                {settings.grayscale && " • Grayscale"}
-                {settings.blur > 0 && ` • Blur: ${settings.blur}px`}
-              </div>
+              {isReady && (
+                <div className="mt-4 text-sm text-muted-foreground text-center">
+                  Current size: {settings.width} × {settings.height}px
+                  {settings.grayscale && " • Grayscale"}
+                  {settings.blur > 0 && ` • Blur: ${settings.blur}px`}
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>

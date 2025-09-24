@@ -30,6 +30,8 @@ function settingsAreEqual(a: ImageSettings, b: ImageSettings) {
   )
 }
 
+type ImageStatus = "idle" | "loading" | "ready" | "missing"
+
 function getStorageKey(imageId: string) {
   return `image-settings-${imageId}`
 }
@@ -46,6 +48,7 @@ function removeStoredSettings(imageId: string) {
 export function useEditorState(id: string | null) {
   const [imageInfo, setImageInfo] = useState<PicsumImage | null>(null)
   const [settings, setSettings] = useState<ImageSettings>(BASE_DEFAULT_SETTINGS)
+  const [imageStatus, setImageStatus] = useState<ImageStatus>("idle")
   const defaultSettingsRef = useRef<ImageSettings>(BASE_DEFAULT_SETTINGS)
 
   const processedImageUrl = imageInfo ? getImageUrl(imageInfo.id, settings.width, settings.height, {
@@ -59,6 +62,7 @@ export function useEditorState(id: string | null) {
 
     defaultSettingsRef.current = BASE_DEFAULT_SETTINGS
     setImageInfo(null)
+    setImageStatus(id ? "loading" : "missing")
 
     if (!id) {
       setSettings({...BASE_DEFAULT_SETTINGS})
@@ -91,12 +95,15 @@ export function useEditorState(id: string | null) {
 
         if (!image) {
           defaultSettingsRef.current = BASE_DEFAULT_SETTINGS
+          setSettings({...BASE_DEFAULT_SETTINGS})
+          setImageStatus("missing")
           return
         }
 
         const defaults = computeDefaultSettings(image)
         defaultSettingsRef.current = defaults
         setImageInfo(image)
+        setImageStatus("ready")
 
         if (!storedSettings) {
           setSettings({...defaults})
@@ -104,6 +111,8 @@ export function useEditorState(id: string | null) {
       } catch (error) {
         if (!signal.aborted) {
           console.error("Failed to load image info:", error)
+          setSettings({...BASE_DEFAULT_SETTINGS})
+          setImageStatus("missing")
         }
       }
     }
@@ -150,10 +159,9 @@ export function useEditorState(id: string | null) {
 
   const resetSettings = useCallback(() => {
     const defaults = defaultSettingsRef.current
-
     persistSettings(defaults)
     setSettings({...defaults})
   }, [persistSettings])
 
-  return [processedImageUrl, imageInfo, settings, updateSettings, resetSettings] as const
+  return [processedImageUrl, imageInfo, settings, updateSettings, resetSettings, imageStatus] as const
 }
