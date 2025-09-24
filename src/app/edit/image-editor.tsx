@@ -10,7 +10,7 @@ import {Slider} from "@/components/ui/slider"
 import {Switch} from "@/components/ui/switch"
 import {Input} from "@/components/ui/input"
 import {Label} from "@/components/ui/label"
-import {downloadImage} from "@/lib/image-utils"
+import {downloadImage} from "@/lib/picsum-api"
 import {useEditorState} from "@/app/edit/editor-hooks";
 
 export function ImageEditor() {

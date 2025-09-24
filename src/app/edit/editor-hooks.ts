@@ -1,6 +1,6 @@
 import {useEffect, useState} from "react";
-import {PicsumAPI, PicsumImage} from "@/lib/picsum-api";
-import {type ImageSettings} from "@/lib/image-utils"
+import {getImageInfo, getImageUrl, ImageSettings, PicsumImage} from "@/lib/picsum-api";
+
 
 export function useEditorState(id: string | null) {
   const [imageInfo, setImageInfo] = useState<PicsumImage | null>(null)
@@ -11,7 +11,7 @@ export function useEditorState(id: string | null) {
     blur: 0,
   })
 
-  const processedImageUrl = imageInfo ? PicsumAPI.getImageUrl(imageInfo.id, settings.width, settings.height, {
+  const processedImageUrl = imageInfo ? getImageUrl(imageInfo.id, settings.width, settings.height, {
     grayscale: settings.grayscale,
     blur: settings.blur,
   }) : ""
@@ -21,7 +21,7 @@ export function useEditorState(id: string | null) {
     const signal = controller.signal
 
     async function fetchImageInfo(imageId: string) {
-      const image = await PicsumAPI.getImageInfo(imageId, signal)
+      const image = await getImageInfo(imageId, signal)
       setImageInfo(image)
     }
 
@@ -46,7 +46,7 @@ export function useEditorState(id: string | null) {
           const defaultWidth = 800
           const defaultHeight = Math.round(defaultWidth / aspectRatio)
 
-          setSettings((prev) => ({
+          setSettings((prev: ImageSettings) => ({
             ...prev,
             width: defaultWidth,
             height: defaultHeight,
@@ -71,7 +71,7 @@ export function useEditorState(id: string | null) {
   }, [settings, imageInfo?.id])
 
   function updateSettings(updates: Partial<ImageSettings>) {
-    setSettings((prev) => ({...prev, ...updates}))
+    setSettings((prev: ImageSettings) => ({...prev, ...updates}))
   }
 
   function resetSettings() {

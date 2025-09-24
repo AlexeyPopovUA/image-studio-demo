@@ -14,7 +14,7 @@ import {
   PaginationPrevious
 } from "@/components/ui/pagination";
 import {getPageNumbers} from "@/lib/pagination";
-import {useGalleryImages} from "@/components/gallery/hooks";
+import {useGalleryImages} from "@/components/gallery/gallery-hooks";
 
 export function ImageGallery() {
   const searchParams = useSearchParams();

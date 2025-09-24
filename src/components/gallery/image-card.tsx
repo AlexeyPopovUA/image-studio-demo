@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import {PicsumAPI, PicsumImage} from "@/lib/picsum-api";
+import {getThumbnailUrl, PicsumImage} from "@/lib/picsum-api";
 import {Card, CardContent} from "@/components/ui/card";
 
 export function ImageCard(props: { image: PicsumImage }) {
@@ -9,7 +9,7 @@ export function ImageCard(props: { image: PicsumImage }) {
       <CardContent className="p-0">
         <div className="relative aspect-[4/3] overflow-hidden rounded-t-lg">
           <Image
-            src={PicsumAPI.getThumbnailUrl(props.image.id, 400)}
+            src={getThumbnailUrl(props.image.id, 400)}
             alt={`Photo by ${props.image.author}`}
             fill
             loading="lazy"

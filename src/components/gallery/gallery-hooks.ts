@@ -1,5 +1,5 @@
 import {useEffect, useState} from "react";
-import {PicsumAPI, PicsumImage} from "@/lib/picsum-api";
+import {getImages, PicsumImage} from "@/lib/picsum-api";
 
 const ITEMS_PER_PAGE = 9
 
@@ -28,7 +28,7 @@ export function useGalleryImages(pageNumber: number) {
       setState(prevState => ({...prevState, loading: true, error: ""}))
 
       try {
-        const response = await PicsumAPI.getImages(pageNumber, ITEMS_PER_PAGE, signal)
+        const response = await getImages(pageNumber, ITEMS_PER_PAGE, signal)
         setState({loading: false, error: "", images: response.images, hasPrevious: response.hasPrev, hasNext: response.hasNext})
       } catch (err: unknown) {
         if (err instanceof Error && err.name === "AbortError") {
