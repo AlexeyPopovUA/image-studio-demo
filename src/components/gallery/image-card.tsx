@@ -22,7 +22,7 @@ export function ImageCard({image, prevPage}: ImageCardProps) {
       <CardContent className="p-0">
         <div className="relative aspect-[4/3] overflow-hidden rounded-t-lg">
           <Image
-            src={getThumbnailUrl(image.id, 400)}
+            src={getThumbnailUrl(image.id, 600)}
             alt={`Photo by ${image.author}`}
             fill
             loading="lazy"

@@ -3,8 +3,8 @@ import {getImageInfo, getImageUrl, ImageSettings, PicsumImage} from "@/lib/picsu
 
 
 const BASE_DEFAULT_SETTINGS: ImageSettings = {
-  width: 800,
-  height: 600,
+  width: 1200,
+  height: 900,
   grayscale: false,
   blur: 0,
 }

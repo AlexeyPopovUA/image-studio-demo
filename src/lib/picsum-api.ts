@@ -71,8 +71,8 @@ export async function getImageInfo(id: string, signal: AbortSignal): Promise<Pic
 
 export function getImageUrl(
   id: string,
-  width = 800,
-  height = 600,
+  width = 1200,
+  height = 900,
   options?: {
     grayscale?: boolean
     blur?: number
