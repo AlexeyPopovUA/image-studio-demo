@@ -1,15 +1,52 @@
-import {useEffect, useState} from "react";
+import {useCallback, useEffect, useRef, useState} from "react";
 import {getImageInfo, getImageUrl, ImageSettings, PicsumImage} from "@/lib/picsum-api";
+
+
+const BASE_DEFAULT_SETTINGS: ImageSettings = {
+  width: 800,
+  height: 600,
+  grayscale: false,
+  blur: 0,
+}
+
+function computeDefaultSettings(image: PicsumImage): ImageSettings {
+  const aspectRatio = image.width / image.height
+  const width = BASE_DEFAULT_SETTINGS.width
+  const height = Math.max(1, Math.round(width / aspectRatio))
+
+  return {
+    ...BASE_DEFAULT_SETTINGS,
+    width,
+    height,
+  }
+}
+
+function settingsAreEqual(a: ImageSettings, b: ImageSettings) {
+  return (
+    a.width === b.width &&
+    a.height === b.height &&
+    a.grayscale === b.grayscale &&
+    a.blur === b.blur
+  )
+}
+
+function getStorageKey(imageId: string) {
+  return `image-settings-${imageId}`
+}
+
+function removeStoredSettings(imageId: string) {
+  try {
+    localStorage.removeItem(getStorageKey(imageId))
+  } catch (error) {
+    console.error("Failed to remove saved settings:", error)
+  }
+}
 
 
 export function useEditorState(id: string | null) {
   const [imageInfo, setImageInfo] = useState<PicsumImage | null>(null)
-  const [settings, setSettings] = useState<ImageSettings>({
-    width: 800,
-    height: 600,
-    grayscale: false,
-    blur: 0,
-  })
+  const [settings, setSettings] = useState<ImageSettings>(BASE_DEFAULT_SETTINGS)
+  const defaultSettingsRef = useRef<ImageSettings>(BASE_DEFAULT_SETTINGS)
 
   const processedImageUrl = imageInfo ? getImageUrl(imageInfo.id, settings.width, settings.height, {
     grayscale: settings.grayscale,
@@ -20,75 +57,103 @@ export function useEditorState(id: string | null) {
     const controller = new AbortController()
     const signal = controller.signal
 
-    async function fetchImageInfo(imageId: string) {
-      const image = await getImageInfo(imageId, signal)
-      setImageInfo(image)
+    defaultSettingsRef.current = BASE_DEFAULT_SETTINGS
+    setImageInfo(null)
+
+    if (!id) {
+      setSettings({...BASE_DEFAULT_SETTINGS})
+      return () => controller.abort()
     }
 
-    if (typeof id === "string" && id) {
-      void fetchImageInfo(id)
+    const storageKey = getStorageKey(id)
+    let storedSettings: ImageSettings | null = null
+
+    try {
+      const savedSettings = localStorage.getItem(storageKey)
+
+      if (savedSettings) {
+        storedSettings = JSON.parse(savedSettings) as ImageSettings
+        setSettings(storedSettings)
+      } else {
+        setSettings({...BASE_DEFAULT_SETTINGS})
+      }
+    } catch (error) {
+      console.error("Failed to load saved settings:", error)
+      setSettings({...BASE_DEFAULT_SETTINGS})
     }
+
+    const fetchImageInfo = async () => {
+      try {
+        const image = await getImageInfo(id, signal)
+        if (signal.aborted) {
+          return
+        }
+
+        if (!image) {
+          defaultSettingsRef.current = BASE_DEFAULT_SETTINGS
+          return
+        }
+
+        const defaults = computeDefaultSettings(image)
+        defaultSettingsRef.current = defaults
+        setImageInfo(image)
+
+        if (!storedSettings) {
+          setSettings({...defaults})
+        }
+      } catch (error) {
+        if (!signal.aborted) {
+          console.error("Failed to load image info:", error)
+        }
+      }
+    }
+
+    void fetchImageInfo()
 
     return () => {
       controller.abort()
     }
   }, [id])
 
-  // Load settings from localStorage
-  useEffect(() => {
-    if (imageInfo?.id) {
-      try {
-        const savedSettings = localStorage.getItem(`image-settings-${imageInfo.id}`)
-        if (savedSettings) {
-          setSettings(JSON.parse(savedSettings))
-        } else {
-          const aspectRatio = imageInfo.width / imageInfo.height
-          const defaultWidth = 800
-          const defaultHeight = Math.round(defaultWidth / aspectRatio)
-
-          setSettings((prev: ImageSettings) => ({
-            ...prev,
-            width: defaultWidth,
-            height: defaultHeight,
-          }))
-        }
-      } catch (error) {
-        console.error("Failed to load saved settings:", error)
-      }
+  const persistSettings = useCallback((next: ImageSettings) => {
+    if (!id) {
+      return
     }
 
-  }, [imageInfo?.id, imageInfo?.width, imageInfo?.height])
+    const defaults = defaultSettingsRef.current
+    const storageKey = getStorageKey(id)
 
-  // Save settings to localStorage
-  useEffect(() => {
-    if (imageInfo?.id) {
-      try {
-        localStorage.setItem(`image-settings-${imageInfo.id}`, JSON.stringify(settings))
-      } catch (error) {
-        console.error("Failed to save settings:", error)
-      }
+    if (settingsAreEqual(next, defaults)) {
+      removeStoredSettings(id)
+      return
     }
-  }, [settings, imageInfo?.id])
 
-  function updateSettings(updates: Partial<ImageSettings>) {
-    setSettings((prev: ImageSettings) => ({...prev, ...updates}))
-  }
-
-  function resetSettings() {
-    if (imageInfo) {
-      const aspectRatio = imageInfo.width / imageInfo.height
-      const defaultWidth = 800
-      const defaultHeight = Math.round(defaultWidth / aspectRatio)
-
-      const defaultSettings: ImageSettings = {
-        width: defaultWidth,
-        height: defaultHeight,
-        grayscale: false,
-        blur: 0,
-      }
-      setSettings(defaultSettings)
+    try {
+      localStorage.setItem(storageKey, JSON.stringify(next))
+    } catch (error) {
+      console.error("Failed to save settings:", error)
     }
-  }
+  }, [id])
+
+  const updateSettings = useCallback((updates: Partial<ImageSettings>) => {
+    setSettings((prev: ImageSettings) => {
+      const next = {...prev, ...updates}
+
+      if (settingsAreEqual(prev, next)) {
+        return prev
+      }
+
+      persistSettings(next)
+      return next
+    })
+  }, [persistSettings])
+
+  const resetSettings = useCallback(() => {
+    const defaults = defaultSettingsRef.current
+
+    persistSettings(defaults)
+    setSettings({...defaults})
+  }, [persistSettings])
 
   return [processedImageUrl, imageInfo, settings, updateSettings, resetSettings] as const
 }
