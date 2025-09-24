@@ -12,7 +12,7 @@ import {Switch} from "@/components/ui/switch"
 import {Input} from "@/components/ui/input"
 import {Label} from "@/components/ui/label"
 import {downloadImage} from "@/lib/picsum-api"
-import {useEditorState} from "@/app/edit/editor-hooks";
+import {useEditorState} from "@/components/editor/editor-hooks";
 
 export function ImageEditor() {
   const searchParams = useSearchParams();

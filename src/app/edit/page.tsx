@@ -1,5 +1,5 @@
 import {Suspense} from "react";
-import {ImageEditor} from "@/app/edit/image-editor";
+import {ImageEditor} from "@/components/editor/image-editor";
 
 export default async function EditPage() {
   return (
