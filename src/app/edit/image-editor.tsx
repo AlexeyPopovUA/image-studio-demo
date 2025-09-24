@@ -3,7 +3,8 @@
 import {useTransition} from "react";
 import {useSearchParams} from "next/navigation";
 import Image from "next/image"
-import {Download, ImageOff, Loader2, RotateCcw} from "lucide-react"
+import Link from "next/link"
+import {ArrowLeft, Download, ImageOff, Loader2, RotateCcw} from "lucide-react"
 import {Button} from "@/components/ui/button"
 import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card"
 import {Slider} from "@/components/ui/slider"
@@ -23,6 +24,8 @@ export function ImageEditor() {
   const isReady = imageStatus === "ready"
   const isMissing = imageStatus === "missing"
   const isLoading = imageStatus === "loading"
+  const prevPageParam = searchParams.get('prevPage')
+  const backHref = prevPageParam && prevPageParam.startsWith('/') ? prevPageParam : '/'
 
   const handleDownload = () => {
     startDownloadTransition(async () => {
@@ -37,6 +40,12 @@ export function ImageEditor() {
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
         <div className="flex items-center space-x-4">
+          <Button variant="ghost" size="sm" asChild>
+            <Link href={backHref} className="flex items-center gap-2">
+              <ArrowLeft className="h-4 w-4"/>
+              Back
+            </Link>
+          </Button>
           <div>
             {isMissing ? (
               <>
