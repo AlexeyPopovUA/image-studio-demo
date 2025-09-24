@@ -60,3 +60,4 @@ In the project directory, you can run:
 *   `pnpm build`: Builds the app for production to the `out` folder.
 *   `pnpm start`: Starts a local production server.
 *   `pnpm lint`: Runs ESLint to check for code quality issues.
+*   `pnpm check:ts`: Runs TypeScript compiler to check for type errors.
