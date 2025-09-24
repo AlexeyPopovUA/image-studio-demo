@@ -1,18 +1,10 @@
 "use client"
 
-import {Loader2, AlertCircle} from "lucide-react"
+import {AlertCircle, Loader2} from "lucide-react"
 import {useSearchParams} from "next/navigation";
 import {Button} from "@/components/ui/button";
 import {ImageCard} from "@/components/gallery/image-card";
-import {
-  Pagination,
-  PaginationContent,
-  PaginationEllipsis,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious
-} from "@/components/ui/pagination";
+import {GalleryPagination} from "@/components/gallery/gallery-pagination";
 import {getPageNumbers} from "@/lib/pagination";
 import {useGalleryImages} from "@/components/gallery/gallery-hooks";
 
@@ -21,7 +13,6 @@ export function ImageGallery() {
   const page = searchParams.get("page");
   const currentPage = page ? parseInt(page) : 1;
   const pageNumbers = getPageNumbers(currentPage)
-
   const [images, loading, error] = useGalleryImages(currentPage)
 
   if (loading) {
@@ -54,6 +45,9 @@ export function ImageGallery() {
 
   return (
     <div className="space-y-6">
+      {/* Pagination */}
+      <GalleryPagination currentPage={currentPage} pageNumbers={pageNumbers}/>
+
       {/* Image Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {images.map((image) => (
@@ -66,24 +60,7 @@ export function ImageGallery() {
       </div>
 
       {/* Pagination */}
-      <Pagination>
-        <PaginationContent>
-          <PaginationItem>
-            <PaginationPrevious href={currentPage === 1 ? "?page=1" : `?page=${currentPage - 1}`}/>
-          </PaginationItem>
-          {pageNumbers.map((page) => (
-            <PaginationItem key={page}>
-              <PaginationLink isActive={currentPage === page} href={`?page=${page}`}>{page}</PaginationLink>
-            </PaginationItem>
-          ))}
-          <PaginationItem>
-            <PaginationEllipsis/>
-          </PaginationItem>
-          <PaginationItem>
-            <PaginationNext href={`?page=${currentPage + 1}`}/>
-          </PaginationItem>
-        </PaginationContent>
-      </Pagination>
+      <GalleryPagination currentPage={currentPage} pageNumbers={pageNumbers}/>
 
       {/* Page Info */}
       <div className="text-center text-sm text-muted-foreground">
