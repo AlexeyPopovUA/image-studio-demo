@@ -55,7 +55,7 @@ pnpm install
 
 ```bash
 pnpm build
-pnpm start
+pnpm dlx serve@latest out
 ```
 
 The production build outputs static assets to `out/`, and `pnpm start` serves the last build locally.
