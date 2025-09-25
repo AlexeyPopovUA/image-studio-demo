@@ -1,4 +1,5 @@
-import {useCallback, useEffect, useRef, useState} from "react";
+import {useCallback, useEffect, useMemo, useRef, useState} from "react";
+import {debounce} from "lodash-es";
 import {getImageInfo, getImageUrl, ImageSettings, PicsumImage} from "@/lib/picsum-api";
 
 
@@ -48,13 +49,11 @@ function removeStoredSettings(imageId: string) {
 export function useEditorState(id: string | null) {
   const [imageInfo, setImageInfo] = useState<PicsumImage | null>(null)
   const [settings, setSettings] = useState<ImageSettings>(BASE_DEFAULT_SETTINGS)
+  const [processedImageUrl, setProcessedImageUrl] = useState("")
   const [imageStatus, setImageStatus] = useState<ImageStatus>("idle")
   const defaultSettingsRef = useRef<ImageSettings>(BASE_DEFAULT_SETTINGS)
 
-  const processedImageUrl = imageInfo ? getImageUrl(imageInfo.id, settings.width, settings.height, {
-    grayscale: settings.grayscale,
-    blur: settings.blur,
-  }) : ""
+  const debouncedSetProcessedImageUrl = useMemo(() => debounce(setProcessedImageUrl, 200), [])
 
   useEffect(() => {
     const controller = new AbortController()
@@ -63,6 +62,7 @@ export function useEditorState(id: string | null) {
     defaultSettingsRef.current = BASE_DEFAULT_SETTINGS
     setImageInfo(null)
     setImageStatus(id ? "loading" : "missing")
+    setProcessedImageUrl("")
 
     if (!id) {
       setSettings({...BASE_DEFAULT_SETTINGS})
@@ -123,6 +123,19 @@ export function useEditorState(id: string | null) {
       controller.abort()
     }
   }, [id])
+
+  useEffect(() => {
+    const nextUrl = imageInfo?.id ? getImageUrl(imageInfo.id, settings.width, settings.height, {
+      grayscale: settings.grayscale,
+      blur: settings.blur,
+    }) : ""
+
+    debouncedSetProcessedImageUrl(nextUrl)
+
+    return () => {
+      debouncedSetProcessedImageUrl.cancel()
+    }
+  }, [debouncedSetProcessedImageUrl, imageInfo?.id, settings.blur, settings.grayscale, settings.height, settings.width])
 
   const persistSettings = useCallback((next: ImageSettings) => {
     if (!id) {
