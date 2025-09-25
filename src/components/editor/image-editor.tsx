@@ -19,7 +19,8 @@ export function ImageEditor() {
   const id = searchParams.get('id');
 
   const [isDownloadPending, startDownloadTransition] = useTransition();
-  const [processedImageUrl, imageInfo, settings, updateSettings, resetSettings, imageStatus] = useEditorState(id)
+  // Preview dimensions are derived to keep network usage low while honoring configured aspect ratio.
+  const [processedImageUrl, imageInfo, settings, updateSettings, resetSettings, imageStatus, previewDimensions] = useEditorState(id)
 
   const blurLabelId = useId();
   const blurDescriptionId = useId();
@@ -34,8 +35,8 @@ export function ImageEditor() {
   const isLoading = imageStatus === "loading"
   const prevPageParam = searchParams.get('prevPage')
   const backHref = prevPageParam && prevPageParam.startsWith('/') ? prevPageParam : '/'
-  const widthInputMax = imageInfo ? imageInfo.width : 2000
-  const heightInputMax = imageInfo ? imageInfo.height : 2000
+  const widthInputMax = imageInfo ? imageInfo.width : 1200
+  const heightInputMax = imageInfo ? imageInfo.height : 1200
 
   const handleDownload = () => {
     startDownloadTransition(async () => {
@@ -47,12 +48,12 @@ export function ImageEditor() {
 
   const handleWidthChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {
     const parsedValue = Number.parseInt(event.target.value, 10) || 0
-    updateSettings({width: parsedValue})
+    updateSettings({width: Math.max(1, parsedValue)})
   }, [updateSettings])
 
   const handleHeightChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {
     const parsedValue = Number.parseInt(event.target.value, 10) || 0
-    updateSettings({height: parsedValue})
+    updateSettings({height: Math.max(1, parsedValue)})
   }, [updateSettings])
 
   const handleGrayscaleChange = useCallback((checked: boolean) => {
@@ -142,7 +143,7 @@ export function ImageEditor() {
                       type="number"
                       value={settings.width}
                       onChange={handleWidthChange}
-                      min="100"
+                      min="1"
                       max={widthInputMax}
                       className="bg-input border-border text-foreground"
                       disabled={!isReady}
@@ -157,7 +158,7 @@ export function ImageEditor() {
                       type="number"
                       value={settings.height}
                       onChange={handleHeightChange}
-                      min="100"
+                      min="1"
                       max={heightInputMax}
                       className="bg-input border-border text-foreground"
                       disabled={!isReady}
@@ -215,7 +216,7 @@ export function ImageEditor() {
           <Card className="bg-card border-border">
             <CardHeader>
               <CardTitle id={previewTitleId} className="text-foreground flex items-center gap-2">
-                Preview
+                Quick Preview <span className="text-sm font-normal">(light version {previewDimensions.width}x{previewDimensions.height})</span>
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -229,8 +230,8 @@ export function ImageEditor() {
                     src={processedImageUrl}
                     alt={`Photo by ${imageInfo.author}`}
                     loading="eager"
-                    width={settings.width}
-                    height={settings.height}
+                    width={previewDimensions.width}
+                    height={previewDimensions.height}
                     className="max-w-full max-h-[600px] object-contain rounded shadow-lg"
                     unoptimized
                   />

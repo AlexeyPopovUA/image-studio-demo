@@ -4,11 +4,14 @@ import {getImageInfo, getImageUrl, ImageSettings, PicsumImage} from "@/lib/picsu
 
 // Baseline editor configuration used before image-specific defaults load.
 const BASE_DEFAULT_SETTINGS: ImageSettings = {
-  width: 2000,
-  height: 2000,
+  width: 1200,
+  height: 1200,
   grayscale: false,
   blur: 0,
 }
+
+// Limit preview fetches to a smaller size while preserving aspect ratio.
+const PREVIEW_MAX_DIMENSION = 1200
 
 // Derive default settings using the source image dimensions.
 function computeDefaultSettings(image: PicsumImage): ImageSettings {
@@ -27,6 +30,43 @@ function settingsAreEqual(a: ImageSettings, b: ImageSettings) {
     a.grayscale === b.grayscale &&
     a.blur === b.blur
   )
+}
+
+function enforceDimensionBounds(settings: ImageSettings, maxDimensions: ImageSettings): ImageSettings {
+  const clampedWidth = Math.min(Math.max(1, settings.width), maxDimensions.width)
+  const clampedHeight = Math.min(Math.max(1, settings.height), maxDimensions.height)
+
+  if (clampedWidth === settings.width && clampedHeight === settings.height) {
+    return settings
+  }
+
+  return {
+    ...settings,
+    width: clampedWidth,
+    height: clampedHeight,
+  }
+}
+
+// Determine a smaller preview size while maintaining the editor's aspect ratio.
+function computePreviewDimensions(settings: ImageSettings) {
+  const {width, height} = settings
+
+  const maxDimension = Math.max(width, height)
+
+  if (maxDimension <= PREVIEW_MAX_DIMENSION) {
+    return {width, height}
+  }
+
+  if (width >= height) {
+    const previewWidth = PREVIEW_MAX_DIMENSION
+    const previewHeight = Math.max(1, Math.round((height / width) * previewWidth))
+    return {width: previewWidth, height: previewHeight}
+  }
+
+  const previewHeight = PREVIEW_MAX_DIMENSION
+  const previewWidth = Math.max(1, Math.round((width / height) * previewHeight))
+
+  return {width: previewWidth, height: previewHeight}
 }
 
 type ImageStatus = "idle" | "loading" | "ready" | "missing"
@@ -56,6 +96,8 @@ export function useEditorState(id: string | null) {
   const defaultSettingsRef = useRef<ImageSettings>(BASE_DEFAULT_SETTINGS)
 
   const debouncedSetProcessedImageUrl = useMemo(() => debounce(setProcessedImageUrl, 200), [])
+  // Update preview scale in lock-step with user-configured dimensions.
+  const previewDimensions = useMemo(() => computePreviewDimensions(settings), [settings])
 
   // React to image id changes: hydrate from storage, fetch metadata, and seed defaults.
   useEffect(() => {
@@ -129,7 +171,8 @@ export function useEditorState(id: string | null) {
 
   // Update the processed image URL when settings change, debounced to limit network churn.
   useEffect(() => {
-    const nextUrl = imageInfo?.id ? getImageUrl(imageInfo.id, settings.width, settings.height, {
+    // Fetch the downsized preview variant but keep filters identical to the download image.
+    const nextUrl = imageInfo?.id ? getImageUrl(imageInfo.id, previewDimensions.width, previewDimensions.height, {
       grayscale: settings.grayscale,
       blur: settings.blur,
     }) : ""
@@ -139,7 +182,7 @@ export function useEditorState(id: string | null) {
     return () => {
       debouncedSetProcessedImageUrl.cancel()
     }
-  }, [debouncedSetProcessedImageUrl, imageInfo?.id, settings.blur, settings.grayscale, settings.height, settings.width])
+  }, [debouncedSetProcessedImageUrl, imageInfo?.id, previewDimensions, previewDimensions.height, previewDimensions.width, settings.blur, settings.grayscale])
 
   // Persist non-default settings per image, pruning storage when returning to defaults.
   const persistSettings = useCallback((next: ImageSettings) => {
@@ -165,7 +208,9 @@ export function useEditorState(id: string | null) {
   // Merge updates and persist meaningful changes.
   const updateSettings = useCallback((updates: Partial<ImageSettings>) => {
     setSettings((prev: ImageSettings) => {
-      const next = {...prev, ...updates}
+      const defaults = defaultSettingsRef.current
+      const merged = {...prev, ...updates}
+      const next = enforceDimensionBounds(merged, defaults)
 
       if (settingsAreEqual(prev, next)) {
         return prev
@@ -183,5 +228,5 @@ export function useEditorState(id: string | null) {
     setSettings({...defaults})
   }, [persistSettings])
 
-  return [processedImageUrl, imageInfo, settings, updateSettings, resetSettings, imageStatus] as const
+  return [processedImageUrl, imageInfo, settings, updateSettings, resetSettings, imageStatus, previewDimensions] as const
 }
