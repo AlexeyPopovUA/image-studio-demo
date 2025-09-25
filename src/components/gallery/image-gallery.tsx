@@ -64,10 +64,8 @@ export function ImageGallery() {
 
   return (
     <div className="space-y-6">
-      {/* Pagination */}
       <GalleryPagination currentPage={currentPage} pageNumbers={pageNumbers}/>
 
-      {/* Image Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {images.map((image) => (
           <ImageCard
@@ -78,10 +76,8 @@ export function ImageGallery() {
         ))}
       </div>
 
-      {/* Pagination */}
       <GalleryPagination currentPage={currentPage} pageNumbers={pageNumbers}/>
 
-      {/* Page Info */}
       <div className="text-center text-sm text-muted-foreground">
         Page {currentPage} • Showing {images.length} images
       </div>
