@@ -25,6 +25,10 @@ export function ImageEditor() {
   const blurDescriptionId = useId();
   const previewTitleId = useId();
 
+  const blurLevelDescription = settings.blur === 0
+    ? "Blur off"
+    : `Blur level ${settings.blur} of 10`;
+
   const isReady = imageStatus === "ready"
   const isMissing = imageStatus === "missing"
   const isLoading = imageStatus === "loading"
@@ -185,13 +189,13 @@ export function ImageEditor() {
                     className="text-xs text-muted-foreground"
                     id={blurDescriptionId}
                   >
-                    {settings.blur}/10
+                    {blurLevelDescription}
                   </span>
                 </div>
                 <Slider
                   aria-labelledby={blurLabelId}
                   aria-describedby={blurDescriptionId}
-                  aria-valuetext={`Level ${settings.blur}`}
+                  aria-valuetext={blurLevelDescription}
                   value={[settings.blur]}
                   onValueChange={handleBlurChange}
                   max={10}
@@ -250,7 +254,7 @@ export function ImageEditor() {
                 <div className="mt-4 text-sm text-muted-foreground text-center">
                   Current size: {settings.width} × {settings.height}px
                   {settings.grayscale && " • Grayscale"}
-                  {settings.blur > 0 && ` • Blur: ${settings.blur}px`}
+                  {settings.blur > 0 && ` • Blur level ${settings.blur}`}
                 </div>
               )}
             </CardContent>
