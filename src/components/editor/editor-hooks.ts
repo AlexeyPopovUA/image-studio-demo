@@ -2,7 +2,7 @@ import {useCallback, useEffect, useMemo, useRef, useState} from "react";
 import {debounce} from "lodash-es";
 import {getImageInfo, getImageUrl, ImageSettings, PicsumImage} from "@/lib/picsum-api";
 
-
+// Baseline editor configuration used before image-specific defaults load.
 const BASE_DEFAULT_SETTINGS: ImageSettings = {
   width: 1200,
   height: 900,
@@ -10,6 +10,7 @@ const BASE_DEFAULT_SETTINGS: ImageSettings = {
   blur: 0,
 }
 
+// Derive default settings that keep the original aspect ratio while fitting our target width.
 function computeDefaultSettings(image: PicsumImage): ImageSettings {
   const aspectRatio = image.width / image.height
   const width = BASE_DEFAULT_SETTINGS.width
@@ -22,6 +23,7 @@ function computeDefaultSettings(image: PicsumImage): ImageSettings {
   }
 }
 
+// Lightweight equality check to avoid redundant state updates or localStorage writes.
 function settingsAreEqual(a: ImageSettings, b: ImageSettings) {
   return (
     a.width === b.width &&
@@ -33,6 +35,7 @@ function settingsAreEqual(a: ImageSettings, b: ImageSettings) {
 
 type ImageStatus = "idle" | "loading" | "ready" | "missing"
 
+// Namespaced key for persisting image-specific settings across sessions.
 function getStorageKey(imageId: string) {
   return `image-settings-${imageId}`
 }
@@ -46,6 +49,9 @@ function removeStoredSettings(imageId: string) {
 }
 
 
+/**
+ * Orchestrates editor state for a Picsum image, handling persistence, fetching, and derived URLs.
+ */
 export function useEditorState(id: string | null) {
   const [imageInfo, setImageInfo] = useState<PicsumImage | null>(null)
   const [settings, setSettings] = useState<ImageSettings>(BASE_DEFAULT_SETTINGS)
@@ -55,6 +61,7 @@ export function useEditorState(id: string | null) {
 
   const debouncedSetProcessedImageUrl = useMemo(() => debounce(setProcessedImageUrl, 200), [])
 
+  // React to image id changes: hydrate from storage, fetch metadata, and seed defaults.
   useEffect(() => {
     const controller = new AbortController()
     const signal = controller.signal
@@ -124,6 +131,7 @@ export function useEditorState(id: string | null) {
     }
   }, [id])
 
+  // Update the processed image URL when settings change, debounced to limit network churn.
   useEffect(() => {
     const nextUrl = imageInfo?.id ? getImageUrl(imageInfo.id, settings.width, settings.height, {
       grayscale: settings.grayscale,
@@ -137,6 +145,7 @@ export function useEditorState(id: string | null) {
     }
   }, [debouncedSetProcessedImageUrl, imageInfo?.id, settings.blur, settings.grayscale, settings.height, settings.width])
 
+  // Persist non-default settings per image, pruning storage when returning to defaults.
   const persistSettings = useCallback((next: ImageSettings) => {
     if (!id) {
       return
@@ -157,6 +166,7 @@ export function useEditorState(id: string | null) {
     }
   }, [id])
 
+  // Merge updates and persist meaningful changes.
   const updateSettings = useCallback((updates: Partial<ImageSettings>) => {
     setSettings((prev: ImageSettings) => {
       const next = {...prev, ...updates}
@@ -170,6 +180,7 @@ export function useEditorState(id: string | null) {
     })
   }, [persistSettings])
 
+  // Reset to image defaults while keeping persistence layer in sync.
   const resetSettings = useCallback(() => {
     const defaults = defaultSettingsRef.current
     persistSettings(defaults)
