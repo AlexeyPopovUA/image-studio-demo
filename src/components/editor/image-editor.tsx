@@ -34,6 +34,8 @@ export function ImageEditor() {
   const isLoading = imageStatus === "loading"
   const prevPageParam = searchParams.get('prevPage')
   const backHref = prevPageParam && prevPageParam.startsWith('/') ? prevPageParam : '/'
+  const widthInputMax = imageInfo ? imageInfo.width : 2000
+  const heightInputMax = imageInfo ? imageInfo.height : 2000
 
   const handleDownload = () => {
     startDownloadTransition(async () => {
@@ -141,7 +143,7 @@ export function ImageEditor() {
                       value={settings.width}
                       onChange={handleWidthChange}
                       min="100"
-                      max="2000"
+                      max={widthInputMax}
                       className="bg-input border-border text-foreground"
                       disabled={!isReady}
                     />
@@ -156,7 +158,7 @@ export function ImageEditor() {
                       value={settings.height}
                       onChange={handleHeightChange}
                       min="100"
-                      max="2000"
+                      max={heightInputMax}
                       className="bg-input border-border text-foreground"
                       disabled={!isReady}
                     />

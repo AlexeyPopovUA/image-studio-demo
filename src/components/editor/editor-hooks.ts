@@ -4,22 +4,18 @@ import {getImageInfo, getImageUrl, ImageSettings, PicsumImage} from "@/lib/picsu
 
 // Baseline editor configuration used before image-specific defaults load.
 const BASE_DEFAULT_SETTINGS: ImageSettings = {
-  width: 1200,
-  height: 900,
+  width: 2000,
+  height: 2000,
   grayscale: false,
   blur: 0,
 }
 
-// Derive default settings that keep the original aspect ratio while fitting our target width.
+// Derive default settings using the source image dimensions.
 function computeDefaultSettings(image: PicsumImage): ImageSettings {
-  const aspectRatio = image.width / image.height
-  const width = BASE_DEFAULT_SETTINGS.width
-  const height = Math.max(1, Math.round(width / aspectRatio))
-
   return {
     ...BASE_DEFAULT_SETTINGS,
-    width,
-    height,
+    width: image.width,
+    height: image.height
   }
 }
 
