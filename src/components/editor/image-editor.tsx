@@ -93,7 +93,7 @@ export function ImageEditor() {
             variant="outline"
             size="sm"
             onClick={resetSettings}
-            className="border-border hover:bg-accent bg-transparent"
+            className="border-border hover:bg-accent bg-transparent cursor-pointer"
             disabled={!isReady}
           >
             <RotateCcw className="h-4 w-4 mr-2"/>
@@ -102,7 +102,7 @@ export function ImageEditor() {
           <Button
             size="sm"
             onClick={handleDownload}
-            className="bg-primary hover:bg-primary/90"
+            className="bg-primary hover:bg-primary/90 cursor-pointer"
             disabled={!isReady || isDownloadPending}
           >
             <Download className="h-4 w-4 mr-2"/>
