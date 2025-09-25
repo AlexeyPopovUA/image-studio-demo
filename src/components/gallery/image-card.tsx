@@ -17,7 +17,7 @@ export function ImageCard({image, prevPage}: ImageCardProps) {
 
   const href = `/edit/?${searchParams.toString()}`
 
-  return <Link href={href} className="block">
+  return <Link href={href} className="block" shallow={true}>
     <Card className="group cursor-pointer transition-all duration-200 bg-card border-border pt-0">
       <CardContent className="p-0">
         <div className="relative aspect-[4/3] overflow-hidden rounded-t-lg">
