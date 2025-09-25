@@ -43,6 +43,9 @@ jobs:
       - name: TypeScript check
         run: pnpm check:ts
 
+      - name: Unit tests
+        run: pnpm test
+
       - name: Build application
         run: pnpm build
 

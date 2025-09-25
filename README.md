@@ -49,6 +49,7 @@ pnpm install
 - `pnpm dev` – starts the Next.js dev server with Turbopack at http://localhost:3000.
 - `pnpm lint` – runs ESLint using the Next.js recommended rules.
 - `pnpm check:ts` – performs a no-emit TypeScript check.
+- `pnpm test` – executes the Jest unit test suite.
 
 ### Production Build
 
@@ -69,4 +70,3 @@ The production build outputs static assets to `out/`, and `pnpm start` serves th
 ## Contributing
 
 Run `pnpm lint && pnpm check:ts` before submitting changes. Follow Conventional Commit messages (e.g., `feat:`, `chore:`) and include screenshots when altering the UI.
-
