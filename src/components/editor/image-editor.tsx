@@ -1,6 +1,6 @@
 "use client";
 
-import {ChangeEvent, useCallback, useTransition} from "react";
+import {ChangeEvent, useCallback, useId, useTransition} from "react";
 import {useSearchParams} from "next/navigation";
 import Image from "next/image"
 import Link from "next/link"
@@ -20,6 +20,10 @@ export function ImageEditor() {
 
   const [isDownloadPending, startDownloadTransition] = useTransition();
   const [processedImageUrl, imageInfo, settings, updateSettings, resetSettings, imageStatus] = useEditorState(id)
+
+  const blurLabelId = useId();
+  const blurDescriptionId = useId();
+  const previewTitleId = useId();
 
   const isReady = imageStatus === "ready"
   const isMissing = imageStatus === "missing"
@@ -60,11 +64,11 @@ export function ImageEditor() {
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:gap-4">
           <Button variant="ghost" size="sm" asChild className="w-full justify-start md:w-auto md:justify-center">
             <Link href={backHref} className="flex items-center gap-2">
-              <ArrowLeft className="h-4 w-4"/>
+              <ArrowLeft className="h-4 w-4" aria-hidden="true"/>
               Back
             </Link>
           </Button>
-          <div>
+          <div role={isMissing ? "alert" : isLoading ? "status" : undefined}>
             {isMissing ? (
               <>
                 <h1 className="text-2xl font-bold text-foreground">Could not load the image</h1>
@@ -96,7 +100,7 @@ export function ImageEditor() {
             className="border-border hover:bg-accent bg-transparent cursor-pointer w-full sm:w-auto"
             disabled={!isReady}
           >
-            <RotateCcw className="h-4 w-4 mr-2"/>
+            <RotateCcw className="h-4 w-4 mr-2" aria-hidden="true"/>
             Reset
           </Button>
           <Button
@@ -105,7 +109,7 @@ export function ImageEditor() {
             className="bg-primary hover:bg-primary/90 cursor-pointer w-full sm:w-auto"
             disabled={!isReady || isDownloadPending}
           >
-            <Download className="h-4 w-4 mr-2"/>
+            <Download className="h-4 w-4 mr-2" aria-hidden="true"/>
             Download
           </Button>
         </div>
@@ -176,10 +180,18 @@ export function ImageEditor() {
               {/* Blur Control */}
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <Label className="text-sm font-medium text-foreground">Blur</Label>
-                  <span className="text-xs text-muted-foreground">{settings.blur}/10</span>
+                  <Label id={blurLabelId} className="text-sm font-medium text-foreground">Blur</Label>
+                  <span
+                    className="text-xs text-muted-foreground"
+                    id={blurDescriptionId}
+                  >
+                    {settings.blur}/10
+                  </span>
                 </div>
                 <Slider
+                  aria-labelledby={blurLabelId}
+                  aria-describedby={blurDescriptionId}
+                  aria-valuetext={`Level ${settings.blur}`}
                   value={[settings.blur]}
                   onValueChange={handleBlurChange}
                   max={10}
@@ -196,12 +208,16 @@ export function ImageEditor() {
         <div className="lg:col-span-2">
           <Card className="bg-card border-border">
             <CardHeader>
-              <CardTitle className="text-foreground flex items-center gap-2">
+              <CardTitle id={previewTitleId} className="text-foreground flex items-center gap-2">
                 Preview
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="relative bg-muted rounded-lg p-4 min-h-[280px] flex items-center justify-center md:min-h-[400px] md:p-6">
+              <div
+                className="relative bg-muted rounded-lg p-4 min-h-[280px] flex items-center justify-center md:min-h-[400px] md:p-6"
+                role="region"
+                aria-labelledby={previewTitleId}
+              >
                 {isReady && imageInfo && processedImageUrl ? (
                   <Image
                     src={processedImageUrl}

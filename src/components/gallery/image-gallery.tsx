@@ -19,8 +19,8 @@ export function ImageGallery() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <div className="flex items-center space-x-2">
-          <Loader2 className="h-6 w-6 animate-spin"/>
+        <div className="flex items-center space-x-2" role="status">
+          <Loader2 className="h-6 w-6 animate-spin" aria-hidden="true"/>
           <span className="text-muted-foreground">Loading images...</span>
         </div>
       </div>
@@ -30,8 +30,8 @@ export function ImageGallery() {
   if (error) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <div className="text-center space-y-3">
-          <AlertCircle className="h-12 w-12 text-destructive mx-auto"/>
+        <div className="text-center space-y-3" role="alert">
+          <AlertCircle className="h-12 w-12 text-destructive mx-auto" aria-hidden="true"/>
           <h3 className="text-lg font-semibold text-foreground">Error Loading Images</h3>
           <p className="text-muted-foreground">{error}</p>
           <p className="text-muted-foreground">
@@ -48,8 +48,8 @@ export function ImageGallery() {
   if (!loading && images.length === 0) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <div className="text-center space-y-3">
-          <AlertCircle className="h-12 w-12 text-muted-foreground mx-auto"/>
+        <div className="text-center space-y-3" role="status">
+          <AlertCircle className="h-12 w-12 text-muted-foreground mx-auto" aria-hidden="true"/>
           <h3 className="text-lg font-semibold text-foreground">No images found</h3>
           <p className="text-muted-foreground">
             Try navigating to a different page or{" "}

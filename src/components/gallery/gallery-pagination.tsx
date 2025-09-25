@@ -67,8 +67,9 @@ export function GalleryPagination({currentPage, pageNumbers}: GalleryPaginationP
             disabled={currentPage === 1}
             aria-disabled={currentPage === 1}
             data-disabled={currentPage === 1}
+            aria-label="Go to previous page"
           >
-            <ChevronLeft className="h-4 w-4"/>
+            <ChevronLeft className="h-4 w-4" aria-hidden="true"/>
             <span className="hidden sm:block">Previous</span>
           </Button>
         </PaginationItem>
@@ -82,6 +83,11 @@ export function GalleryPagination({currentPage, pageNumbers}: GalleryPaginationP
               variant={currentPage === pageNumber ? "outline" : "ghost"}
               size="icon"
               aria-current={currentPage === pageNumber ? "page" : undefined}
+              aria-label={
+                currentPage === pageNumber
+                  ? `Current page, Page ${pageNumber}`
+                  : `Go to page ${pageNumber}`
+              }
               onClick={() => navigateToPage(pageNumber)}
             >
               {pageNumber}
@@ -100,7 +106,7 @@ export function GalleryPagination({currentPage, pageNumbers}: GalleryPaginationP
             aria-label="Go to next page"
           >
             <span className="hidden sm:block">Next</span>
-            <ChevronRight className="h-4 w-4"/>
+            <ChevronRight className="h-4 w-4" aria-hidden="true"/>
           </Button>
         </PaginationItem>
       </PaginationContent>
