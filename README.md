@@ -1,63 +1,72 @@
 # Image Studio Demo
 
-This is a web application for browsing and editing images, sourced from the public "Picsum Photos" API. The application allows users to view a gallery of images, select an image, and apply various edits such as resizing, grayscale, and blur effects.
+Image Studio Demo is a Next.js application for browsing the Picsum Photos catalog, fine-tuning image settings, and downloading tailored assets. The project highlights a modern editing workflow built with the App Router, TypeScript, and a component-driven UI system.
 
-This project was bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+## Live Demo
 
-## Features
+- https://alexeypopovua.github.io/image-studio-demo/
 
-*   Browse a paginated gallery of images from Picsum Photos.
-*   Edit image properties like width, height, grayscale, and blur.
-*   Download the edited image.
-*   Responsive design that works on different screen sizes.
+## Screenshots
+
+![Gallery page showing paginated Picsum images](docs/gallery.png)
+
+![Editor page with resizing, grayscale, and blur controls](docs/editor.png)
+
+## Key Features
+
+- Paginated image gallery powered by the Picsum Photos API.
+- Editor with live preview, dimension controls, grayscale toggle, and blur levels.
+- Download pipeline that reflects user-selected settings.
+- Responsive layout and accessible controls for keyboard and screen reader users.
 
 ## Tech Stack
 
-*   **Framework:** [Next.js](https://nextjs.org/) (with App Router)
-*   **Language:** [TypeScript](https://www.typescriptlang.org/)
-*   **UI:** [React](https://react.dev/)
-*   **Styling:** [Tailwind CSS](https://tailwindcss.com/)
-*   **UI Components:** [Shadcn UI](https://ui.shadcn.com/)
-*   **Package Manager:** [pnpm](https://pnpm.io/)
+- **Framework:** Next.js (App Router)
+- **Language:** TypeScript
+- **UI Library:** React
+- **Styling:** Tailwind CSS + Shadcn UI components
+- **Package Manager:** pnpm
 
 ## Getting Started
 
 ### Prerequisites
 
-*   Node.js (version 22)
-*   pnpm
+- Node.js 22
+- pnpm
 
 ### Installation
 
-1.  Clone the repository:
-    ```bash
-    git clone <repository-url>
-    ```
-2.  Navigate to the project directory:
-    ```bash
-    cd image-studio-demo
-    ```
-3.  Install the dependencies:
-    ```bash
-    pnpm install
-    ```
-
-### Running the Development Server
-
-To start the development server, run:
+Clone the repository and install dependencies:
 
 ```bash
-pnpm dev
+git clone <repository-url>
+cd image-studio-demo
+pnpm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Development
 
-## Available Scripts
+- `pnpm dev` – starts the Next.js dev server with Turbopack at http://localhost:3000.
+- `pnpm lint` – runs ESLint using the Next.js recommended rules.
+- `pnpm check:ts` – performs a no-emit TypeScript check.
 
-In the project directory, you can run:
+### Production Build
 
-*   `pnpm dev`: Runs the app in development mode.
-*   `pnpm build`: Builds the app for production to the `out` folder.
-*   `pnpm start`: Starts a local production server.
-*   `pnpm lint`: Runs ESLint to check for code quality issues.
-*   `pnpm check:ts`: Runs TypeScript compiler to check for type errors.
+```bash
+pnpm build
+pnpm start
+```
+
+The production build outputs static assets to `out/`, and `pnpm start` serves the last build locally.
+
+## Project Structure Highlights
+
+- `src/app` – App Router layouts, pages, and global styles.
+- `src/components` – Feature- and UI-focused React components.
+- `src/lib` – Shared utilities such as pagination helpers and Picsum API adapters.
+- `docs/` – Screenshots used in this README.
+
+## Contributing
+
+Run `pnpm lint && pnpm check:ts` before submitting changes. Follow Conventional Commit messages (e.g., `feat:`, `chore:`) and include screenshots when altering the UI.
+
