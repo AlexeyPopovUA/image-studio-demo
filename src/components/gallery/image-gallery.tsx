@@ -1,12 +1,13 @@
 "use client"
 
-import {AlertCircle, Loader2} from "lucide-react"
-import Link from "next/link";
 import {useSearchParams} from "next/navigation";
-import {ImageCard} from "@/components/gallery/image-card";
-import {GalleryPagination} from "@/components/gallery/gallery-pagination";
+import {GalleryLayout} from "./gallery-layout";
+import {GalleryStateMessage} from "./gallery-state-message";
+import {GalleryGrid} from "./gallery-grid";
+import {GalleryInitialLoading} from "./gallery-loading";
 import {getPageNumbers} from "@/lib/pagination";
 import {useGalleryImages} from "@/components/gallery/gallery-hooks";
+import {ResetHelper} from "@/components/gallery/reset-helper";
 
 export function ImageGallery() {
   const searchParams = useSearchParams();
@@ -16,71 +17,43 @@ export function ImageGallery() {
   const pageNumbers = getPageNumbers(currentPage);
   const [images, loading, error] = useGalleryImages(requestedPage);
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <div className="flex items-center space-x-2" role="status">
-          <Loader2 className="h-6 w-6 animate-spin" aria-hidden="true"/>
-          <span className="text-muted-foreground">Loading images...</span>
-        </div>
-      </div>
-    )
-  }
-
-  if (error) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <div className="text-center space-y-3" role="alert">
-          <AlertCircle className="h-12 w-12 text-destructive mx-auto" aria-hidden="true"/>
-          <h3 className="text-lg font-semibold text-foreground">Error Loading Images</h3>
-          <p className="text-muted-foreground">{error}</p>
-          <p className="text-muted-foreground">
-            Try navigating to a different page or{" "}
-            <Link href="/" className="text-primary underline underline-offset-4">
-              reset to the first page
-            </Link>
-          </p>
-        </div>
-      </div>
-    )
-  }
-
-  if (!loading && images.length === 0) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <div className="text-center space-y-3" role="status">
-          <AlertCircle className="h-12 w-12 text-muted-foreground mx-auto" aria-hidden="true"/>
-          <h3 className="text-lg font-semibold text-foreground">No images found</h3>
-          <p className="text-muted-foreground">
-            Try navigating to a different page or{" "}
-            <Link href="/" className="text-primary underline underline-offset-4">
-              reset to the first page
-            </Link>
-          </p>
-        </div>
-      </div>
-    )
-  }
+  const showEmptyState = !loading && images.length === 0 && !error
+  const hasImages = images.length > 0
+  const hasPageQuery = Boolean(page)
 
   return (
-    <div className="space-y-6">
-      <GalleryPagination currentPage={currentPage} pageNumbers={pageNumbers}/>
+    <GalleryLayout
+      currentPage={currentPage}
+      pageNumbers={pageNumbers}
+      showFooter={!error && hasImages}
+      footerText={`Page ${currentPage} • Showing ${images.length} images`}
+    >
+      {error ? (
+        <GalleryStateMessage
+          title="Error Loading Images"
+          description={error}
+          helper={<ResetHelper/>}
+          iconVariant="destructive"
+        />
+      ) : null}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {images.map((image) => (
-          <ImageCard
-            key={image.id}
-            image={image}
-            prevPage={page ? `/?page=${currentPage}` : undefined}
-          />
-        ))}
-      </div>
+      {loading && !hasImages && !error ? <GalleryInitialLoading/> : null}
 
-      <GalleryPagination currentPage={currentPage} pageNumbers={pageNumbers}/>
+      {showEmptyState ? (
+        <GalleryStateMessage
+          title="No images found"
+          helper={<ResetHelper/>}
+        />
+      ) : null}
 
-      <div className="text-center text-sm text-muted-foreground">
-        Page {currentPage} • Showing {images.length} images
-      </div>
-    </div>
+      {!error && hasImages ? (
+        <GalleryGrid
+          currentPage={currentPage}
+          images={images}
+          isLoading={loading}
+          hasExplicitPage={hasPageQuery}
+        />
+      ) : null}
+    </GalleryLayout>
   )
 }
