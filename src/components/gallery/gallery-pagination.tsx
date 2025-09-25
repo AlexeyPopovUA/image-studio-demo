@@ -72,6 +72,9 @@ export function GalleryPagination({currentPage, pageNumbers}: GalleryPaginationP
             <span className="hidden sm:block">Previous</span>
           </Button>
         </PaginationItem>
+        {pageNumbers.at(0) !== 1 ? <PaginationItem>
+          <PaginationEllipsis/>
+        </PaginationItem> : null}
         {pageNumbers.map((pageNumber) => (
           <PaginationItem key={pageNumber}>
             <Button
