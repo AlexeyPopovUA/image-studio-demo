@@ -56,9 +56,9 @@ export function ImageEditor() {
   return (
     <div className="container mx-auto px-4 py-8">
       {/* Header */}
-      <div className="flex items-center justify-between mb-8">
-        <div className="flex items-center space-x-4">
-          <Button variant="ghost" size="sm" asChild>
+      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-8">
+        <div className="flex flex-col gap-4 md:flex-row md:items-center md:gap-4">
+          <Button variant="ghost" size="sm" asChild className="w-full justify-start md:w-auto md:justify-center">
             <Link href={backHref} className="flex items-center gap-2">
               <ArrowLeft className="h-4 w-4"/>
               Back
@@ -88,12 +88,12 @@ export function ImageEditor() {
             )}
           </div>
         </div>
-        <div className="flex space-x-2">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-stretch md:items-center sm:justify-end">
           <Button
             variant="outline"
             size="sm"
             onClick={resetSettings}
-            className="border-border hover:bg-accent bg-transparent cursor-pointer"
+            className="border-border hover:bg-accent bg-transparent cursor-pointer w-full sm:w-auto"
             disabled={!isReady}
           >
             <RotateCcw className="h-4 w-4 mr-2"/>
@@ -102,7 +102,7 @@ export function ImageEditor() {
           <Button
             size="sm"
             onClick={handleDownload}
-            className="bg-primary hover:bg-primary/90 cursor-pointer"
+            className="bg-primary hover:bg-primary/90 cursor-pointer w-full sm:w-auto"
             disabled={!isReady || isDownloadPending}
           >
             <Download className="h-4 w-4 mr-2"/>
@@ -111,7 +111,7 @@ export function ImageEditor() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
         {/* Controls Panel */}
         <div className="lg:col-span-1 space-y-6">
           <Card className="bg-card border-border">
@@ -122,7 +122,7 @@ export function ImageEditor() {
               {/* Size Controls */}
               <div className="space-y-4">
                 <Label className="text-sm font-medium text-foreground">Dimensions</Label>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                   <div className="space-y-2">
                     <Label htmlFor="width" className="text-xs text-muted-foreground">
                       Width
@@ -201,7 +201,7 @@ export function ImageEditor() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="relative bg-muted rounded-lg p-4 min-h-[400px] flex items-center justify-center">
+              <div className="relative bg-muted rounded-lg p-4 min-h-[280px] flex items-center justify-center md:min-h-[400px] md:p-6">
                 {isReady && imageInfo && processedImageUrl ? (
                   <Image
                     src={processedImageUrl}
