@@ -1,4 +1,5 @@
 import type {Metadata} from "next";
+import Link from "next/link";
 import {Geist, Geist_Mono} from "next/font/google";
 import "./globals.css";
 
@@ -25,13 +26,26 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased overflow-y-scroll`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased overflow-y-scroll flex min-h-screen flex-col`}
       >
-        <main className="min-h-screen bg-background">
+        <main className="flex-1 bg-background">
           <div className="container mx-auto px-4 py-8">
             {children}
           </div>
         </main>
+        <footer className="border-t border-border bg-background">
+          <div className="container mx-auto px-4 py-6 text-center text-sm text-muted-foreground">
+            Developed by&nbsp;
+            <Link
+              href="https://oleksiipopov.com"
+              className="font-medium text-foreground hover:text-primary focus-visible:underline"
+              rel="noopener noreferrer"
+            >
+              Oleksii Popov
+            </Link>
+            &nbsp;in 2025
+          </div>
+        </footer>
       </body>
     </html>
   );
