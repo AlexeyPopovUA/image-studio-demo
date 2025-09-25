@@ -1,6 +1,6 @@
 "use client";
 
-import {useTransition} from "react";
+import {ChangeEvent, useCallback, useTransition} from "react";
 import {useSearchParams} from "next/navigation";
 import Image from "next/image"
 import Link from "next/link"
@@ -34,6 +34,24 @@ export function ImageEditor() {
       }
     })
   }
+
+  const handleWidthChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {
+    const parsedValue = Number.parseInt(event.target.value, 10) || 0
+    updateSettings({width: parsedValue})
+  }, [updateSettings])
+
+  const handleHeightChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {
+    const parsedValue = Number.parseInt(event.target.value, 10) || 0
+    updateSettings({height: parsedValue})
+  }, [updateSettings])
+
+  const handleGrayscaleChange = useCallback((checked: boolean) => {
+    updateSettings({grayscale: checked})
+  }, [updateSettings])
+
+  const handleBlurChange = useCallback((value: number[]) => {
+    updateSettings({blur: value[0] ?? 0})
+  }, [updateSettings])
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -113,7 +131,7 @@ export function ImageEditor() {
                       id="width"
                       type="number"
                       value={settings.width}
-                      onChange={(e) => updateSettings({width: Number.parseInt(e.target.value) || 0})}
+                      onChange={handleWidthChange}
                       min="100"
                       max="2000"
                       className="bg-input border-border text-foreground"
@@ -128,7 +146,7 @@ export function ImageEditor() {
                       id="height"
                       type="number"
                       value={settings.height}
-                      onChange={(e) => updateSettings({height: Number.parseInt(e.target.value) || 0})}
+                      onChange={handleHeightChange}
                       min="100"
                       max="2000"
                       className="bg-input border-border text-foreground"
@@ -150,7 +168,7 @@ export function ImageEditor() {
                   id="grayscale"
                   className="cursor-pointer"
                   checked={settings.grayscale}
-                  onCheckedChange={(checked) => updateSettings({grayscale: checked})}
+                  onCheckedChange={handleGrayscaleChange}
                   disabled={!isReady}
                 />
               </div>
@@ -163,7 +181,7 @@ export function ImageEditor() {
                 </div>
                 <Slider
                   value={[settings.blur]}
-                  onValueChange={(value) => updateSettings({blur: value[0]})}
+                  onValueChange={handleBlurChange}
                   max={10}
                   min={0}
                   step={1}
