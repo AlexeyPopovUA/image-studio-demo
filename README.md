@@ -16,6 +16,7 @@ Image Studio Demo is a Next.js application for browsing the Picsum Photos catalo
 
 - Paginated image gallery powered by the Picsum Photos API.
 - Editor with live preview, dimension controls, grayscale toggle, and blur levels.
+- Quick preview of edited image renders with a smaller size than the final downloadable result
 - Download pipeline that reflects user-selected settings.
 - Responsive layout and accessible controls for keyboard and screen reader users.
 
