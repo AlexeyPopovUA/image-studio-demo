@@ -4,7 +4,7 @@ import {useSearchParams} from "next/navigation";
 import {GalleryLayout} from "./gallery-layout";
 import {GalleryStateMessage} from "./gallery-state-message";
 import {GalleryGrid} from "./gallery-grid";
-import {GalleryInitialLoading} from "./gallery-loading";
+import {GalleryLoading} from "./gallery-loading";
 import {getPageNumbers} from "@/lib/pagination";
 import {useGalleryImages} from "@/components/gallery/gallery-hooks";
 import {ResetHelper} from "@/components/gallery/reset-helper";
@@ -37,7 +37,7 @@ export function ImageGallery() {
         />
       ) : null}
 
-      {loading && !hasImages && !error ? <GalleryInitialLoading/> : null}
+      {loading && !error ? <GalleryLoading/> : null}
 
       {showEmptyState ? (
         <GalleryStateMessage
@@ -46,11 +46,10 @@ export function ImageGallery() {
         />
       ) : null}
 
-      {!error && hasImages ? (
+      {!loading && !error && hasImages ? (
         <GalleryGrid
           currentPage={currentPage}
           images={images}
-          isLoading={loading}
           hasExplicitPage={hasPageQuery}
         />
       ) : null}
