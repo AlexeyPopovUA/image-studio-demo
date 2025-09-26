@@ -1,8 +1,5 @@
-"use client"
-
 import Link from "next/link";
 import {ChevronLeft, ChevronRight} from "lucide-react";
-import {usePathname, useSearchParams} from "next/navigation";
 import {
   Pagination,
   PaginationContent,
@@ -17,22 +14,6 @@ type GalleryPaginationProps = {
 }
 
 export function GalleryPagination({currentPage, pageNumbers}: GalleryPaginationProps) {
-  const searchParams = useSearchParams();
-  const pathname = usePathname();
-
-  function buildHref(targetPage: number) {
-    const params = new URLSearchParams(searchParams.toString());
-
-    if (targetPage <= 1) {
-      params.delete("page");
-    } else {
-      params.set("page", targetPage.toString());
-    }
-
-    const query = params.toString();
-    return query ? `${pathname}?${query}` : pathname;
-  }
-
   const prevPage = Math.max(currentPage - 1, 1);
   const nextPage = currentPage + 1;
   const isFirstPage = currentPage === 1;
@@ -42,7 +23,7 @@ export function GalleryPagination({currentPage, pageNumbers}: GalleryPaginationP
       <PaginationContent>
         <PaginationItem>
           <Link
-            href={buildHref(prevPage)}
+            href={prevPage <= 1 ? "/" : `?page=${prevPage}`}
             shallow
             passHref
           >
@@ -67,7 +48,7 @@ export function GalleryPagination({currentPage, pageNumbers}: GalleryPaginationP
         {pageNumbers.map((pageNumber) => (
           <PaginationItem key={pageNumber}>
             <Link
-              href={buildHref(pageNumber)}
+              href={pageNumber <= 1 ? "/" : `?page=${pageNumber}`}
               shallow
               passHref
             >
@@ -90,7 +71,7 @@ export function GalleryPagination({currentPage, pageNumbers}: GalleryPaginationP
         </PaginationItem>
         <PaginationItem>
           <Link
-            href={buildHref(nextPage)}
+            href={`?page=${nextPage}`}
             shallow
             passHref
           >
