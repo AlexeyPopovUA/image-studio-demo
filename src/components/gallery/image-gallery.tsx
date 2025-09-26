@@ -22,12 +22,7 @@ export function ImageGallery() {
   const hasPageQuery = Boolean(page)
 
   return (
-    <GalleryLayout
-      currentPage={currentPage}
-      pageNumbers={pageNumbers}
-      showFooter={!error && hasImages}
-      footerText={`Page ${currentPage} • Showing ${images.length} images`}
-    >
+    <GalleryLayout currentPage={currentPage} pageNumbers={pageNumbers}>
       {error ? (
         <GalleryStateMessage
           title="Error Loading Images"
