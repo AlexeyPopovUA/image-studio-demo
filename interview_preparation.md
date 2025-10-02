@@ -58,17 +58,17 @@
 - Refactoring:
   - Simplify views by splitting into smaller components
   - Simplify state management in hooks (use a bigger state objects or reducers)
+  - Split hooks into multiple parts: fetching data, persistence and state preparation for views
   - Move request cancellation responsibility to libraries like react-query
 
 
-## Scaling: What Breaks First, And How I’d Fix It
+## Scaling for Visitors number: What Breaks First, And How I’d Fix It
 
 Likely first to break: external API 429 errors for client requests.
 
 Situation:
   - a lot of users arrive to the same non-cached gallery pages
   - many same non-cached info requests from editor page
-
 
 Short term fixes:
   - Increase quotas on existing services if possible
@@ -81,4 +81,24 @@ Short term fixes:
 Long term fixes:
   - Switch to UI-based preview generation (web workers), ideally, sharing the same operation logic with backend
   - Add telemetry and error alarms for all controllable services
+
+## Scaling for features and teams
+
+Organization of repository:
+
+- consider code splitting to modular monorepo
+  - team is growing
+  - easy code sharing
+  - no resources to support separate micro front-ends
+  - deployment speed of a full package is sufficient to satisfy teams needs
+- consider micro frontends
+  - supporting resources are available
+  - sub apps are isolated and not necessary share a lot
+  - deployment speed is different in different teams
+
+Stack:
+
+- Consider using state management systems
+- Consider having minimal but sufficient re-usable parts for micro-frontends
+- Organize a platform dedicated team to do the system support and transition
 
